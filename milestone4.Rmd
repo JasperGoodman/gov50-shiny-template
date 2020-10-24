@@ -1,0 +1,18 @@
+---
+title: 'Milestone #4'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+covid <- read_csv("Covid_data/all-states-history.csv")
+view(covid) 
+
+ggplot(data = covid, mapping = aes(x = state, y = death)) +
+  geom_col()
+```
+

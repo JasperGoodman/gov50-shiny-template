@@ -6,11 +6,15 @@ library(fec16)
 
 # This is just a normal object
 
-state.names <- c("CA", "NY", "KS")
+state.names <- c("VT", "NY", "MA")
 
 # Make change to your dataset
 results_house <- results_house %>%
   select(-footnotes)
+
+covid <- read_csv("Covid_data/all-states-history.csv")
+view(covid)
+
 
 ######################################################################################
 ######################################################################################
@@ -31,7 +35,7 @@ results_house <- results_house %>%
 #         run runApp() in the console
 
 ui <- fluidPage(navbarPage(
-  "Shiny Example",
+  "Milestone 4",
   
   tabPanel(
     "Main",
@@ -42,73 +46,32 @@ ui <- fluidPage(navbarPage(
     
     # Here is a sidebar!
     
-    sidebarPanel(
-      selectInput(
-        inputId = "selected_state",                 # a name for the value you choose here
-        label = "Choose a state from this list!",   # the name to display on the slider
-        choices = state.names                       # your list of choices to choose from
-      ),
-      
-      sliderInput(
-        inputId = "selected_size",                  # a name for the value you choose here
-        label = "Choose a number as a point size:", # the label to display above the slider
-        min = 0,                                    # the min, max, and initial values
-        max = 5,
-        value = 2 
-      )
-      
-    ),
     
     
     # And here is your "main panel" for the page.
     
     mainPanel(
-      # - You can also make your UI more complicated with UI elements.
-      #
-      #   -- In general, these are defined by functions that you give arguments to 
-      #      (e.g. min and max values).
-      #
-      # - These include:
-      #
-      #   -- selectInput() to choose from multiple options.
-      #
-      #   -- sliderInput() lets you choose a value from a slider of values you define.
-      #
-      #   -- radioButtons() let you choose a button from a number of options
-      #
-      #   -- textInput() lets you enter whatever text you want.
-      #
-      #   -- Lots of other options, like entering a date. Look at the resources for 
-      #      other choices!
-      #
-      # - You then assign these inputs to a value and use those values in other places, 
-      #   like in plots!
-      #
-      # - All of these functions have their own arguments. For example:
-      
-      radioButtons(
-        inputId = "selected_color",             # a name for the value you choose here
-        label = "Choose a color!",              # the label to display above the buttons
-        choices = c("red", "blue", "green")     # the button values to choose from
-      ),
-      
-      textInput(
-        inputId = "entered_text",               # a name for the value you choose here
-        label = "Place your title text here:",  # a label above the text box
-        value = "Example Title"                 # an initial value for the box
-      ),
-      
-      textOutput("state_message"),              # load a text object called "state_message"
-      textOutput("size_message"),
-      textOutput("color_message"),
-      textOutput("text_message"),
+
       plotOutput("state_plot")
     )
   ),
-  tabPanel("About",
-             h3("This is an about me! My name is _______"))
+  tabPanel("About", 
+           titlePanel("About"),
+           h3("Covid-19's Impact on the 2020 Elelction"),
+           p("I worked with my Covid data this week to look at different
+           comparisons. I hope to use a plot similar to this one, where I can 
+           use Shiny to allow users to filter by state, date, etc. to view 
+           specific data. I plan to look at how areas that have been
+             heavily affected by Covid-19 voted in the 2020 election compared to
+             in the past. To look at Covid data, I have loaded in data from the
+             Covid Tracking Project. I plan to compare this to election results,
+             after we have them. For future milestones, I may use the fec16 
+             dataset as a placeholder. Here is a link to my GitHub Repo: 
+             https://github.com/JasperGoodman/milestone4.git"),
+           h3("About Me"),
+           p("My name is Jasper Goodman and I am a sophomroe studying Government. 
+             You can reach me at jaspergoodman@college.harvard.edu.")))
   )
-)
 
 server <- function(input, output, session) {
   # - Then, you use these named objects to update the data on your site via the input object.
@@ -147,19 +110,13 @@ server <- function(input, output, session) {
   # Just like renderText(), we can renderPlot()!
   
   output$state_plot <- renderPlot({
-    # we need to use () here after the name of our dataset because it is reactive!
-    results() %>%
-      
-      # notice we are using the selected_state variable defined above!
-      
-      filter(state == input$selected_state) %>%
-      
-      # this plot is just like normal!
-      ggplot(aes(x = primary_percent, y = general_percent)) +
-      geom_point(size = input$selected_size,
-                 color = input$selected_color) +
-      labs(title = input$entered_text) +
-      theme_bw()
+    
+    ggplot(data = covid, mapping = aes(x = date, y = death, color = state)) +
+      theme(legend.position = "none") +
+      geom_line() +
+      labs(title = "Number of Deaths by State",
+           x = "Date",
+           y = "Number of Deaths")
   })
   
 }
